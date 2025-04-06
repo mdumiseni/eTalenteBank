@@ -16,9 +16,15 @@ public static class InfrastructureServiceCollection
         {
             options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")
                                  ?? throw new ApplicationException(
-                                     "The 'DefaultConnection' connection string is missing or empty."));
+                                     "The 'DefaultConnection' connection string is missing or empty."))
+                .UseAsyncSeeding(async (context, _, cancellationToken) =>
+                {
+                    
+                });
         });
         services.AddHttpContextAccessor();
         services.AddTransient<ICurrentUserService, CurrentUserService>();
+        services.AddTransient(typeof(IRepository<>), typeof(Repository<>));
+        services.AddTransient<IUnitOfWork, UnitOfWork>();
     }
 }

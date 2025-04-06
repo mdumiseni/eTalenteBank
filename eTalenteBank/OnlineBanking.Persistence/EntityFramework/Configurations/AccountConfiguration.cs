@@ -10,7 +10,7 @@ public class AccountConfiguration : IEntityTypeConfiguration<Account>
     {
         builder
             .HasOne(ua => ua.Status)
-            .WithMany() 
+            .WithMany(s => s.NavAccounts) 
             .HasForeignKey(ua => ua.StatusId)
             .OnDelete(DeleteBehavior.Restrict);
         

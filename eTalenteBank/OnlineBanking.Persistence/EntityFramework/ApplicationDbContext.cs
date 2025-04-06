@@ -15,6 +15,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
     
     public DbSet<Account> Accounts { get; set; }
     public DbSet<UserAccount> UserAccounts { get; set; }
+    public DbSet<Withdrawal> Withdrawals { get; set; }
     
     
     public DbSet<ApplicationUser> Users { get; set; }
@@ -36,7 +37,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
         builder.ApplyConfiguration(new AddressConfiguration());
         builder.ApplyConfiguration(new AccountConfiguration());
         builder.ApplyConfiguration(new UserAccountConfiguration());
-        
+        builder.ApplyConfiguration(new WithdrawalConfiguration());
+        builder.ApplyConfiguration(new StatusConfiguration());
+
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

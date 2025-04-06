@@ -16,4 +16,6 @@ public class UserAccount : AuditableEntity
     
     public int StatusId { get; set; }
     public Status Status { get; set; }
+
+    public ICollection<Withdrawal> NavWithdrawals { get; set; } = new HashSet<Withdrawal>();
 }

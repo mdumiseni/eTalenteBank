@@ -12,7 +12,7 @@ using OnlineBanking.Persistence.EntityFramework;
 namespace OnlineBanking.Persistence.EntityFramework.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250406131553_Init")]
+    [Migration("20250406181951_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -153,7 +153,7 @@ namespace OnlineBanking.Persistence.EntityFramework.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Statuses");
+                    b.ToTable("Status", "Shared");
                 });
 
             modelBuilder.Entity("OnlineBanking.Domain.Entities.Account.Account", b =>
@@ -188,9 +188,6 @@ namespace OnlineBanking.Persistence.EntityFramework.Migrations
                     b.Property<int>("StatusId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("StatusId1")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedByUserId");
@@ -201,8 +198,6 @@ namespace OnlineBanking.Persistence.EntityFramework.Migrations
                         .IsUnique();
 
                     b.HasIndex("StatusId");
-
-                    b.HasIndex("StatusId1");
 
                     b.ToTable("Account", "Account");
                 });
@@ -414,6 +409,52 @@ namespace OnlineBanking.Persistence.EntityFramework.Migrations
                     b.ToTable("UserAccount", "User");
                 });
 
+            modelBuilder.Entity("OnlineBanking.Domain.Entities.Withdrawal", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedOnDateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("ModifiedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ModifiedOnDateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("StatusId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("UserAccountId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("ModifiedByUserId");
+
+                    b.HasIndex("StatusId");
+
+                    b.HasIndex("UserAccountId");
+
+                    b.ToTable("Withdrawal", "Withdrawal");
+                });
+
             modelBuilder.Entity("OnlineBanking.Domain.Entities.User.ApplicationUserRole", b =>
                 {
                     b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUserRole<System.Guid>");
@@ -473,14 +514,10 @@ namespace OnlineBanking.Persistence.EntityFramework.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("OnlineBanking.Domain.Common.Status", "Status")
-                        .WithMany()
+                        .WithMany("NavAccounts")
                         .HasForeignKey("StatusId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.HasOne("OnlineBanking.Domain.Common.Status", null)
-                        .WithMany("NavAccounts")
-                        .HasForeignKey("StatusId1");
 
                     b.Navigation("CreatedByUser");
 
@@ -512,7 +549,7 @@ namespace OnlineBanking.Persistence.EntityFramework.Migrations
                     b.HasOne("OnlineBanking.Domain.Common.Status", "Status")
                         .WithMany("NavApplicationRoles")
                         .HasForeignKey("StatusId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Status");
@@ -579,6 +616,40 @@ namespace OnlineBanking.Persistence.EntityFramework.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("OnlineBanking.Domain.Entities.Withdrawal", b =>
+                {
+                    b.HasOne("OnlineBanking.Domain.Entities.User.ApplicationUser", "CreatedByUser")
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("OnlineBanking.Domain.Entities.User.ApplicationUser", "ModifiedByUser")
+                        .WithMany()
+                        .HasForeignKey("ModifiedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("OnlineBanking.Domain.Common.Status", "Status")
+                        .WithMany("NavWithdrawals")
+                        .HasForeignKey("StatusId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("OnlineBanking.Domain.Entities.User.UserAccount", "UserAccount")
+                        .WithMany("NavWithdrawals")
+                        .HasForeignKey("UserAccountId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("CreatedByUser");
+
+                    b.Navigation("ModifiedByUser");
+
+                    b.Navigation("Status");
+
+                    b.Navigation("UserAccount");
+                });
+
             modelBuilder.Entity("OnlineBanking.Domain.Entities.User.ApplicationUserRole", b =>
                 {
                     b.HasOne("OnlineBanking.Domain.Entities.User.ApplicationRole", "Role")
@@ -603,6 +674,8 @@ namespace OnlineBanking.Persistence.EntityFramework.Migrations
                     b.Navigation("NavAccounts");
 
                     b.Navigation("NavApplicationRoles");
+
+                    b.Navigation("NavWithdrawals");
                 });
 
             modelBuilder.Entity("OnlineBanking.Domain.Entities.Address", b =>
@@ -620,6 +693,11 @@ namespace OnlineBanking.Persistence.EntityFramework.Migrations
                     b.Navigation("NavApplicationUserRoles");
 
                     b.Navigation("NavUserAccounts");
+                });
+
+            modelBuilder.Entity("OnlineBanking.Domain.Entities.User.UserAccount", b =>
+                {
+                    b.Navigation("NavWithdrawals");
                 });
 #pragma warning restore 612, 618
         }

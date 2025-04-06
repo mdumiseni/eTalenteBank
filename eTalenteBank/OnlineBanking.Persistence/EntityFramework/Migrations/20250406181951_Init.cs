@@ -18,10 +18,17 @@ namespace OnlineBanking.Persistence.EntityFramework.Migrations
                 name: "Address");
 
             migrationBuilder.EnsureSchema(
+                name: "Shared");
+
+            migrationBuilder.EnsureSchema(
                 name: "User");
 
+            migrationBuilder.EnsureSchema(
+                name: "Withdrawal");
+
             migrationBuilder.CreateTable(
-                name: "Statuses",
+                name: "Status",
+                schema: "Shared",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -31,7 +38,7 @@ namespace OnlineBanking.Persistence.EntityFramework.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Statuses", x => x.Id);
+                    table.PrimaryKey("PK_Status", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -48,11 +55,12 @@ namespace OnlineBanking.Persistence.EntityFramework.Migrations
                 {
                     table.PrimaryKey("PK_AspNetRoles", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_AspNetRoles_Statuses_StatusId",
+                        name: "FK_AspNetRoles_Status_StatusId",
                         column: x => x.StatusId,
-                        principalTable: "Statuses",
+                        principalSchema: "Shared",
+                        principalTable: "Status",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -86,7 +94,6 @@ namespace OnlineBanking.Persistence.EntityFramework.Migrations
                     Number = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     AccountType = table.Column<int>(type: "int", nullable: false),
                     StatusId = table.Column<int>(type: "int", nullable: false),
-                    StatusId1 = table.Column<int>(type: "int", nullable: true),
                     CreatedOnDateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ModifiedOnDateTime = table.Column<DateTime>(type: "datetime2", nullable: true),
                     CreatedByUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -96,16 +103,12 @@ namespace OnlineBanking.Persistence.EntityFramework.Migrations
                 {
                     table.PrimaryKey("PK_Account", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Account_Statuses_StatusId",
+                        name: "FK_Account_Status_StatusId",
                         column: x => x.StatusId,
-                        principalTable: "Statuses",
+                        principalSchema: "Shared",
+                        principalTable: "Status",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Account_Statuses_StatusId1",
-                        column: x => x.StatusId1,
-                        principalTable: "Statuses",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -164,9 +167,10 @@ namespace OnlineBanking.Persistence.EntityFramework.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_AspNetUsers_Statuses_StatusId",
+                        name: "FK_AspNetUsers_Status_StatusId",
                         column: x => x.StatusId,
-                        principalTable: "Statuses",
+                        principalSchema: "Shared",
+                        principalTable: "Status",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -301,9 +305,57 @@ namespace OnlineBanking.Persistence.EntityFramework.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_UserAccount_Statuses_StatusId",
+                        name: "FK_UserAccount_Status_StatusId",
                         column: x => x.StatusId,
-                        principalTable: "Statuses",
+                        principalSchema: "Shared",
+                        principalTable: "Status",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Withdrawal",
+                schema: "Withdrawal",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    AccountId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Timestamp = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UserAccountId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    StatusId = table.Column<int>(type: "int", nullable: false),
+                    CreatedOnDateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ModifiedOnDateTime = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CreatedByUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ModifiedByUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Withdrawal", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Withdrawal_AspNetUsers_CreatedByUserId",
+                        column: x => x.CreatedByUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Withdrawal_AspNetUsers_ModifiedByUserId",
+                        column: x => x.ModifiedByUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Withdrawal_Status_StatusId",
+                        column: x => x.StatusId,
+                        principalSchema: "Shared",
+                        principalTable: "Status",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Withdrawal_UserAccount_UserAccountId",
+                        column: x => x.UserAccountId,
+                        principalSchema: "User",
+                        principalTable: "UserAccount",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -332,12 +384,6 @@ namespace OnlineBanking.Persistence.EntityFramework.Migrations
                 schema: "Account",
                 table: "Account",
                 column: "StatusId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Account_StatusId1",
-                schema: "Account",
-                table: "Account",
-                column: "StatusId1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Address_CreatedByUserId",
@@ -435,6 +481,30 @@ namespace OnlineBanking.Persistence.EntityFramework.Migrations
                 table: "UserAccount",
                 column: "UserId");
 
+            migrationBuilder.CreateIndex(
+                name: "IX_Withdrawal_CreatedByUserId",
+                schema: "Withdrawal",
+                table: "Withdrawal",
+                column: "CreatedByUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Withdrawal_ModifiedByUserId",
+                schema: "Withdrawal",
+                table: "Withdrawal",
+                column: "ModifiedByUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Withdrawal_StatusId",
+                schema: "Withdrawal",
+                table: "Withdrawal",
+                column: "StatusId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Withdrawal_UserAccountId",
+                schema: "Withdrawal",
+                table: "Withdrawal",
+                column: "UserAccountId");
+
             migrationBuilder.AddForeignKey(
                 name: "FK_Account_AspNetUsers_CreatedByUserId",
                 schema: "Account",
@@ -501,11 +571,15 @@ namespace OnlineBanking.Persistence.EntityFramework.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "UserAccount",
-                schema: "User");
+                name: "Withdrawal",
+                schema: "Withdrawal");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "UserAccount",
+                schema: "User");
 
             migrationBuilder.DropTable(
                 name: "Account",
@@ -519,7 +593,8 @@ namespace OnlineBanking.Persistence.EntityFramework.Migrations
                 schema: "Address");
 
             migrationBuilder.DropTable(
-                name: "Statuses");
+                name: "Status",
+                schema: "Shared");
         }
     }
 }

@@ -24,6 +24,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\OnlineBanking.Application\OnlineBanking.Application.csproj" />
+      <ProjectReference Include="..\OnlineBanking.Shared\OnlineBanking.Shared.csproj" />
     </ItemGroup>
 
 </Project>

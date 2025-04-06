@@ -13,6 +13,5 @@ public class Account : AuditableEntity
     public required string Number { get; set; }
     public required AccountType AccountType { get; set; }
     public int StatusId { get; set; }
-    
     public Status Status { get; set; }
 }
